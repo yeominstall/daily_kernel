@@ -23,6 +23,7 @@
 #endif
 	int skip_clock_update;
 
+	/* capture load from *all* tasks on this cpu */
 	struct load_weight load;
 	unsigned long nr_load_updates;
 	u64 nr_switches;
@@ -31,6 +32,7 @@
 	struct rt_rq rt;
 
 #ifdef CONFIG_FAIR_GROUP_SCHED
+	/* list of leaf cfs rq on this cpu: */
 	struct list_head leaf_cfs_rq_list;
 #ifdef CONFIG_SMP
 	unsigned long h_load_throttle;
@@ -41,6 +43,12 @@
 	struct list_head leaf_rt_rq_list;
 #endif
 
+	/*
+	 * This is part of a global counter where only the total sum
+	 * over all CPUs matters. A task can increase this counter on
+	 * one CPU and if it got migrated afterwards it may decrease
+	 * it on another CPU. Always updated under the runqueue lock:
+	 */
 	unsigned long nr_uninterruptible;
 	
 	struct task_struct *curr, *idle, *stop;
@@ -86,6 +94,7 @@
 	u64 prev_steal_time_rq;
 #endif
 
+	/* calc load related fields */
 	unsigned long calc_load_update;
 	long calc_load_active;
 
@@ -98,14 +107,19 @@
 #endif
 
 #ifdef CONFIG_SCHEDSTATS
+	/* latency stats */
 	struct sched_info rq_sched_info;
 	unsigned long long rq_cpu_time;
+	/* could above be rq->cfs_rq.exec_clock + rq->rt_rq.rt_runtime ? */
 
+	/* sys sched yield() stats */
 	unsigned int yld_count;
-
+	
+	/* schedule() stats */
 	unsigned int sched_count;
 	unsigned int sched_goidle;
 
+	/* try_to_wake_up() stats */
 	unsigned int ttwu_count;
 	unsigned int ttwu_local;
 #endif
